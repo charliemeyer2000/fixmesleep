@@ -1,0 +1,2 @@
+ALTER TABLE "daily_metrics" ALTER COLUMN "readiness_score" SET DATA TYPE double precision;--> statement-breakpoint
+ALTER TABLE "daily_metrics" ALTER COLUMN "avg_sleep_hrv" SET DATA TYPE double precision;
