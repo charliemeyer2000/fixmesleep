@@ -229,7 +229,10 @@ export const mcpHandler = createMcpHandler(
     );
   },
   undefined,
-  { basePath: "/api" }
+  { 
+    basePath: "/api",
+    redisUrl: process.env.KV_URL || process.env.REDIS_URL
+  }
 );
 
 export const runtime = "nodejs";
