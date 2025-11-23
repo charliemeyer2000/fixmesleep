@@ -18,6 +18,24 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.svg",
   },
+  openGraph: {
+    title: "fixmesleep · MCP Server",
+    description: "MCP endpoints powering fixmesleep's sleep data tooling.",
+    images: [
+      {
+        url: "/og",
+        width: 1200,
+        height: 630,
+        alt: "fixmesleep MCP server preview",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "fixmesleep · MCP Server",
+    description: "MCP endpoints powering fixmesleep's sleep data tooling.",
+    images: ["/og"],
+  },
 };
 
 export default function RootLayout({
