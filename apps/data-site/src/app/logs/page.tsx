@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Metadata } from "next";
 import { LogTable } from "./log-table";
 import { getRecentActionLogs } from "@/lib/metrics";

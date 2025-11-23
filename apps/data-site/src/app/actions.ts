@@ -1,10 +1,17 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { upsertDailyMetrics, createDb, pokeActionLogs } from "@repo/db";
+import {
+  upsertDailyMetrics,
+  createDb,
+  pokeActionLogs,
+  getRecentDates
+} from "@repo/db";
 import { UltrahumanClient } from "@repo/ultrahuman-client";
 
 const DAYS_CAP = 7;
+const DEFAULT_DAYS = 1;
+const DASHBOARD_PATHS = ["/", "/logs"];
 
 const ultrahumanClient = (() => {
   const token = process.env.ULTRAHUMAN_API_TOKEN;
@@ -15,25 +22,12 @@ const ultrahumanClient = (() => {
 })();
 
 export async function refreshMetricsAction(formData: FormData | { days?: number }) {
-  const rawDays =
-    formData instanceof FormData ? Number(formData.get("days")) : formData?.days;
-  const days = Number.isFinite(rawDays) && rawDays ? Math.min(DAYS_CAP, rawDays) : 1;
+  const days = resolveRequestedDays(formData);
   const targetDates = getRecentDates(days);
+  const upserted = await syncMetricsForDates(targetDates);
 
-  const results = await Promise.all(
-    targetDates.map(date => ultrahumanClient.fetchDailyMetrics({ date }))
-  );
-
-  const flattened = results.flat();
-  const upserted = await upsertDailyMetrics(flattened);
-
-  await logSiteAction("data_site_refresh", {
-    upserted,
-    dates: targetDates
-  });
-
-  revalidatePath("/");
-  revalidatePath("/logs");
+  await logSiteAction("data_site_refresh", { upserted, dates: targetDates });
+  revalidateDashboardPaths();
 
   return { upserted, dates: targetDates };
 }
@@ -51,19 +45,35 @@ async function logSiteAction(toolName: string, payload: Record<string, unknown>)
   });
 }
 
-function getRecentDates(days: number) {
-  const dates: string[] = [];
-  for (let i = 0; i < days; i += 1) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    dates.push(formatDate(date));
+function resolveRequestedDays(source: FormData | { days?: number } | undefined) {
+  if (!source) {
+    return DEFAULT_DAYS;
   }
-  return dates;
+
+  const rawValue = source instanceof FormData ? Number(source.get("days")) : source.days;
+  if (!Number.isFinite(rawValue)) {
+    return DEFAULT_DAYS;
+  }
+
+  const normalized = Math.max(1, Math.floor(Number(rawValue)));
+  return Math.min(DAYS_CAP, normalized);
 }
 
-function formatDate(date: Date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+async function syncMetricsForDates(dates: string[]) {
+  if (!dates.length) {
+    return 0;
+  }
+
+  const results = await Promise.all(
+    dates.map(date => ultrahumanClient.fetchDailyMetrics({ date }))
+  );
+
+  const flattened = results.flat();
+  return upsertDailyMetrics(flattened);
+}
+
+function revalidateDashboardPaths() {
+  for (const path of DASHBOARD_PATHS) {
+    revalidatePath(path);
+  }
 }

@@ -2,8 +2,8 @@ import { and, desc, eq, gte, lte, sql, type SQL } from "drizzle-orm";
 import type { DailyMetric } from "@repo/ultrahuman-client";
 import { buildSleepSummary, type SleepSummary } from "@repo/ultrahuman-client";
 
-import { createDb, type CreateDbOptions, type DbClient } from "../client.js";
-import { dailyMetrics, type DailyMetricRow } from "../schema.js";
+import { createDb, type CreateDbOptions, type DbClient } from "../client";
+import { dailyMetrics, type DailyMetricRow } from "../schema";
 
 export interface MetricServiceOptions extends CreateDbOptions {
   db?: DbClient;

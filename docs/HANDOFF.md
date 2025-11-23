@@ -27,7 +27,6 @@
 | `AI_GATEWAY_API_KEY` | Vercel AI Gateway key | Data-site | ✅ Added (all envs) |
 | `ANTHROPIC_API_KEY` | Direct Anthropic key fallback | Data-site | ✅ Added (all envs) |
 | `ULTRAHUMAN_API_TOKEN` | Ultrahuman Partner API token | Both | ✅ Added (dev/preview/prod) |
-| `ULTRAHUMAN_ACCESS_CODE` | Ultrahuman access code | Both | ✅ Added (all envs) |
 | `MCP_BASE_URL` | Public MCP URL | Data-site | ⛔ Populate after DNS |
 | `ANTHROPIC_MODEL` | Optional Claude model name | Data-site | optional |
 

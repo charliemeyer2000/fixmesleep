@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { LatestMetricCard } from "@/components/dashboard/latest-metric-card";
 import { SleepTrendChart } from "@/components/dashboard/sleep-trend-chart";

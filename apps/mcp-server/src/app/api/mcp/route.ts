@@ -82,44 +82,30 @@ const baseHandler = createMcpHandler(
       async rawInput => {
         const input = fetchMetricsInput.parse(rawInput);
         const client = getUltrahumanClient();
-        const startedAt = Date.now();
         const requestPayload = toLogPayload(input);
-
-        try {
-          const metrics = await client.fetchDailyMetrics(toMetricsQuery(input));
-
-          await logPokeAction({
-            endpoint: "/api/mcp/fetch_daily_metrics",
-            toolName: "fetch_daily_metrics",
-            requestPayload,
-            responsePayload: { count: metrics.length },
-            statusCode: 200,
-            startedAt
-          });
-
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Fetched ${metrics.length} day(s) of data from Ultrahuman.`
-              },
-              {
-                type: "text",
-                text: formatJson({ metrics })
+        return runToolWithLogging({
+          endpoint: "/api/mcp/fetch_daily_metrics",
+          toolName: "fetch_daily_metrics",
+          requestPayload,
+          action: async () => {
+            const metrics = await client.fetchDailyMetrics(toMetricsQuery(input));
+            return {
+              responsePayload: { count: metrics.length },
+              result: {
+                content: [
+                  {
+                    type: "text",
+                    text: `Fetched ${metrics.length} day(s) of data from Ultrahuman.`
+                  },
+                  {
+                    type: "text",
+                    text: formatJson({ metrics })
+                  }
+                ]
               }
-            ]
-          };
-        } catch (error) {
-          await logPokeAction({
-            endpoint: "/api/mcp/fetch_daily_metrics",
-            toolName: "fetch_daily_metrics",
-            requestPayload,
-            responsePayload: serializeError(error),
-            statusCode: statusFromError(error),
-            startedAt
-          });
-          throw error;
-        }
+            };
+          }
+        });
       }
     );
 
@@ -130,41 +116,27 @@ const baseHandler = createMcpHandler(
       async rawInput => {
         const input = fetchMetricsInput.parse(rawInput);
         const client = getUltrahumanClient();
-        const startedAt = Date.now();
         const requestPayload = toLogPayload(input);
-
-        try {
-          const metrics = await client.fetchDailyMetrics(toMetricsQuery(input));
-          const upserted = await upsertDailyMetrics(metrics);
-
-          await logPokeAction({
-            endpoint: "/api/mcp/refresh_and_store_metrics",
-            toolName: "refresh_and_store_metrics",
-            requestPayload,
-            responsePayload: { count: upserted },
-            statusCode: 200,
-            startedAt
-          });
-
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Stored ${upserted} day(s) of metrics in Postgres.`
+        return runToolWithLogging({
+          endpoint: "/api/mcp/refresh_and_store_metrics",
+          toolName: "refresh_and_store_metrics",
+          requestPayload,
+          action: async () => {
+            const metrics = await client.fetchDailyMetrics(toMetricsQuery(input));
+            const upserted = await upsertDailyMetrics(metrics);
+            return {
+              responsePayload: { count: upserted },
+              result: {
+                content: [
+                  {
+                    type: "text",
+                    text: `Stored ${upserted} day(s) of metrics in Postgres.`
+                  }
+                ]
               }
-            ]
-          };
-        } catch (error) {
-          await logPokeAction({
-            endpoint: "/api/mcp/refresh_and_store_metrics",
-            toolName: "refresh_and_store_metrics",
-            requestPayload,
-            responsePayload: serializeError(error),
-            statusCode: statusFromError(error),
-            startedAt
-          });
-          throw error;
-        }
+            };
+          }
+        });
       }
     );
 
@@ -174,48 +146,34 @@ const baseHandler = createMcpHandler(
       listCachedMetricsShape,
       async rawInput => {
         const input = listCachedMetricsInput.parse(rawInput);
-        const startedAt = Date.now();
         const requestPayload = toLogPayload(input);
-
-        try {
-          const rows = await listCachedMetrics(input);
-          const summaries = rows.map(row => ({
-            date: row.metricDate,
-            summary: buildSleepSummaryFromRow(row)
-          }));
-
-          await logPokeAction({
-            endpoint: "/api/mcp/list_cached_metrics",
-            toolName: "list_cached_metrics",
-            requestPayload,
-            responsePayload: { count: rows.length },
-            statusCode: 200,
-            startedAt
-          });
-
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Found ${rows.length} cached day(s).`
-              },
-              {
-                type: "text",
-                text: formatJson({ metrics: rows, summaries })
+        return runToolWithLogging({
+          endpoint: "/api/mcp/list_cached_metrics",
+          toolName: "list_cached_metrics",
+          requestPayload,
+          action: async () => {
+            const rows = await listCachedMetrics(input);
+            const summaries = rows.map(row => ({
+              date: row.metricDate,
+              summary: buildSleepSummaryFromRow(row)
+            }));
+            return {
+              responsePayload: { count: rows.length },
+              result: {
+                content: [
+                  {
+                    type: "text",
+                    text: `Found ${rows.length} cached day(s).`
+                  },
+                  {
+                    type: "text",
+                    text: formatJson({ metrics: rows, summaries })
+                  }
+                ]
               }
-            ]
-          };
-        } catch (error) {
-          await logPokeAction({
-            endpoint: "/api/mcp/list_cached_metrics",
-            toolName: "list_cached_metrics",
-            requestPayload,
-            responsePayload: serializeError(error),
-            statusCode: statusFromError(error),
-            startedAt
-          });
-          throw error;
-        }
+            };
+          }
+        });
       }
     );
 
@@ -225,58 +183,47 @@ const baseHandler = createMcpHandler(
       metricSummaryShape,
       async rawInput => {
         const input = metricSummaryInput.parse(rawInput);
-        const startedAt = Date.now();
         const requestPayload = toLogPayload(input);
-
-        try {
-          const record = await findMetricByDate(input);
-
-          await logPokeAction({
-            endpoint: "/api/mcp/get_metric_summary",
-            toolName: "get_metric_summary",
-            requestPayload,
-            responsePayload: { found: Boolean(record) },
-            statusCode: 200,
-            startedAt
-          });
-
-          if (!record) {
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: `No cached metrics found for ${input.date}.`
+        return runToolWithLogging({
+          endpoint: "/api/mcp/get_metric_summary",
+          toolName: "get_metric_summary",
+          requestPayload,
+          action: async () => {
+            const record = await findMetricByDate(input);
+            if (!record) {
+              return {
+                responsePayload: { found: false },
+                result: {
+                  content: [
+                    {
+                      type: "text",
+                      text: `No cached metrics found for ${input.date}.`
+                    }
+                  ]
                 }
-              ]
+              };
+            }
+
+            return {
+              responsePayload: { found: true },
+              result: {
+                content: [
+                  {
+                    type: "text",
+                    text: `Found cached metrics for ${input.date}.`
+                  },
+                  {
+                    type: "text",
+                    text: formatJson({
+                      summary: buildSleepSummaryFromRow(record),
+                      metric: record
+                    })
+                  }
+                ]
+              }
             };
           }
-
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Found cached metrics for ${input.date}.`
-              },
-              {
-                type: "text",
-                text: formatJson({
-                  summary: buildSleepSummaryFromRow(record),
-                  metric: record
-                })
-              }
-            ]
-          };
-        } catch (error) {
-          await logPokeAction({
-            endpoint: "/api/mcp/get_metric_summary",
-            toolName: "get_metric_summary",
-            requestPayload,
-            responsePayload: serializeError(error),
-            statusCode: statusFromError(error),
-            startedAt
-          });
-          throw error;
-        }
+        });
       }
     );
   },
@@ -329,6 +276,43 @@ function getUltrahumanClient() {
   }
 
   return cachedClient;
+}
+
+type LoggedToolActionResult<T> = {
+  result: T;
+  responsePayload: Record<string, unknown>;
+  statusCode?: number;
+};
+
+async function runToolWithLogging<T>(config: {
+  endpoint: string;
+  toolName: string;
+  requestPayload: Record<string, unknown>;
+  action: () => Promise<LoggedToolActionResult<T>>;
+}) {
+  const startedAt = Date.now();
+  try {
+    const { result, responsePayload, statusCode = 200 } = await config.action();
+    await logPokeAction({
+      endpoint: config.endpoint,
+      toolName: config.toolName,
+      requestPayload: config.requestPayload,
+      responsePayload,
+      statusCode,
+      startedAt
+    });
+    return result;
+  } catch (error) {
+    await logPokeAction({
+      endpoint: config.endpoint,
+      toolName: config.toolName,
+      requestPayload: config.requestPayload,
+      responsePayload: serializeError(error),
+      statusCode: statusFromError(error),
+      startedAt
+    });
+    throw error;
+  }
 }
 
 async function logPokeAction(params: {
@@ -389,15 +373,11 @@ function toMetricsQuery(input: FetchMetricsInput): DailyMetricsQuery {
     };
   }
 
-  if (input.start_epoch && input.end_epoch) {
-    return {
-      start_epoch: input.start_epoch,
-      end_epoch: input.end_epoch,
-      email: input.email
-    };
-  }
-
-  throw new Error("Invalid fetch args");
+  return {
+    start_epoch: input.start_epoch!,
+    end_epoch: input.end_epoch!,
+    email: input.email
+  };
 }
 
 function formatJson(value: unknown) {

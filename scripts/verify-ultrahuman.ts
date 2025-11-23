@@ -1,6 +1,7 @@
 import "dotenv/config";
 
 import { UltrahumanClient, buildSleepSummary } from "@repo/ultrahuman-client";
+import { getRecentDates } from "@repo/db";
 
 type VerificationResult = {
   date: string;
@@ -41,14 +42,6 @@ async function main() {
   }
 
   report(results);
-}
-
-function getRecentDates(days: number): string[] {
-  return Array.from({ length: days }, (_, index) => {
-    const date = new Date();
-    date.setDate(date.getDate() - index);
-    return date.toISOString().slice(0, 10);
-  });
 }
 
 function report(results: VerificationResult[]) {

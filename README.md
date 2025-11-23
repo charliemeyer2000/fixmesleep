@@ -27,7 +27,6 @@ Duplicate `.env.example`, fill it locally, and sync to Vercel with `vc env pull`
 | Variable | Description |
 | --- | --- |
 | `ULTRAHUMAN_API_TOKEN` | Partner API token (see Ultrahuman docs) |
-| `ULTRAHUMAN_ACCESS_CODE` | Optional Ultrahuman access code when sharing another account |
 | `POKE_API_KEY` | Shared secret header for MCP requests |
 | `DATABASE_URL` | Neon Postgres connection string |
 | `AI_GATEWAY_API_KEY` | Vercel AI Gateway token (preferred Anthropic credential) |
