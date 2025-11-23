@@ -11,7 +11,9 @@
         "ULTRAHUMAN_API_TOKEN",
         "ULTRAHUMAN_ACCESS_CODE",
         "ANTHROPIC_API_KEY",
-        "POKE_API_KEY"
+        "POKE_API_KEY",
+        "DASHBOARD_PASSWORD",
+        "AI_GATEWAY_API_KEY"
       ]
     },
     "lint": {
