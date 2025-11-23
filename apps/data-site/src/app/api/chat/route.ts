@@ -1,20 +1,16 @@
 import { NextResponse } from "next/server";
 import { streamText, convertToModelMessages } from "ai";
-import { createAnthropic } from "@ai-sdk/anthropic";
 import { getDashboardData } from "@/lib/metrics";
 
-const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-3-haiku-20240307";
+const MODEL = process.env.ANTHROPIC_MODEL ?? "anthropic/claude-3-haiku-20240307";
 
 export async function POST(req: Request) {
-  const anthropicKey = process.env.AI_GATEWAY_API_KEY ?? process.env.ANTHROPIC_API_KEY;
-  if (!anthropicKey) {
+  if (!process.env.AI_GATEWAY_API_KEY) {
     return NextResponse.json(
-      { error: "Missing AI_GATEWAY_API_KEY or ANTHROPIC_API_KEY" },
+      { error: "Missing AI_GATEWAY_API_KEY" },
       { status: 500 }
     );
   }
-
-  const anthropic = createAnthropic({ apiKey: anthropicKey });
 
   const { messages } = await req.json();
   const dashboard = await getDashboardData(7);
@@ -28,7 +24,7 @@ Use concise, actionable answers.`;
   const modelMessages = convertToModelMessages(messages);
 
   const result = await streamText({
-    model: anthropic(MODEL),
+    model: MODEL,
     system: systemMessage,
     messages: modelMessages
   });
