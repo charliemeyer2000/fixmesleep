@@ -12,9 +12,9 @@ export function RefreshButton() {
     startTransition(async () => {
       setMessage(null);
       try {
-        const result = await refreshMetricsAction({ days: 2 });
+        const result = await refreshMetricsAction({ days: 7 });
         setMessage(
-          `Fetched ${result.upserted} entr${result.upserted === 1 ? "y" : "ies"} (${result.dates.join(", ")})`
+          `Refreshed ${result.dates.length} day(s), updated ${result.upserted} record(s)`
         );
       } catch {
         setMessage("Refresh failed. Check the server logs.");
