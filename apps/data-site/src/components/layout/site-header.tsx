@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MainNav } from "@/components/layout/main-nav";
+import { LogoutButton } from "@/components/logout-button";
 
 export function SiteHeader({ rightSlot }: { rightSlot?: React.ReactNode }) {
   return (
@@ -11,7 +12,10 @@ export function SiteHeader({ rightSlot }: { rightSlot?: React.ReactNode }) {
           </Link>
           <MainNav />
         </div>
-        {rightSlot && <div className="flex items-center gap-2">{rightSlot}</div>}
+        <div className="flex items-center gap-2">
+          <LogoutButton />
+          {rightSlot}
+        </div>
       </div>
     </header>
   );

@@ -6,6 +6,8 @@ The Vercel CLI adds trailing newlines to all environment variables, which breaks
 
 ## Step-by-Step Instructions
 
+### For MCP Server (fixmesleep-mcp)
+
 1. Go to https://vercel.com/charliemeyer2000s-projects/fixmesleep-mcp/settings/environment-variables
 
 2. Delete the existing variables:
@@ -35,6 +37,40 @@ postgresql://neondb_owner:npg_aWYbTsRXo6j4@ep-spring-base-a44lzsp1-pooler.us-eas
 ```
 h74I/JfsBlhqJb/3ZTEbwPS6SfjI+9W8H153uiJj8lM=
 ```
+
+### For Data Dashboard (fixmesleep-dashboard)
+
+1. Go to https://vercel.com/charliemeyer2000s-projects/fixmesleep-dashboard/settings/environment-variables
+
+2. Add these variables for Production:
+
+#### ULTRAHUMAN_API_TOKEN
+```
+eyJhbGciOiJIUzI1NiJ9.eyJzZWNyZXQiOiJkM2M1NzRkMTQ5YWIyODJiNzlhOSIsInNjb3BlcyI6WyJyaW5nIl0sIm5hbWUiOiJmaXhtZXNsZWVwIiwiZXhwIjoyMDc5Mjk0NzIzfQ.TOVqFUKB5U1eiGSjeuh0QtFhTEc1SWClpkVq-WVtNJs
+```
+
+#### ULTRAHUMAN_ACCESS_CODE
+```
+CHAKNTAS
+```
+
+#### DATABASE_URL
+```
+postgresql://neondb_owner:npg_aWYbTsRXo6j4@ep-spring-base-a44lzsp1-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+```
+
+#### DASHBOARD_PASSWORD
+```
+persuasion
+```
+
+#### AI_GATEWAY_API_KEY (already set)
+```
+vck_0c8wnwxCYgfUTxYGa4LAZ4sNml1lUs4lvouEhRXNARWDzgbAJd043FO2
+```
+
+#### ANTHROPIC_API_KEY (if not already set)
+Contact Charlie for this key.
 
 ## Important Notes
 
