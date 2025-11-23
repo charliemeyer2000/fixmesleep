@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --max-warnings 0",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "db:generate": "pnpm --filter fixmesleep db:generate",
+    "db:push": "pnpm --filter fixmesleep db:push"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.45",
