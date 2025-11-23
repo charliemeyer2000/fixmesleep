@@ -94,12 +94,14 @@ export class UltrahumanError extends Error {
 
 export interface UltrahumanClientOptions {
   apiToken: string;
+  accessCode: string;
   baseUrl?: string;
   fetchImplementation?: typeof fetch;
 }
 
 export class UltrahumanClient {
   private readonly apiToken: string;
+  private readonly accessCode: string;
   private readonly baseUrl: string;
   private readonly fetchImpl: typeof fetch;
 
@@ -107,8 +109,12 @@ export class UltrahumanClient {
     if (!options.apiToken) {
       throw new Error("UltrahumanClient requires an apiToken");
     }
+    if (!options.accessCode) {
+      throw new Error("UltrahumanClient requires an accessCode");
+    }
 
-    this.apiToken = options.apiToken;
+    this.apiToken = options.apiToken.trim();
+    this.accessCode = options.accessCode.trim();
     this.baseUrl = options.baseUrl ?? DEFAULT_BASE_URL;
     this.fetchImpl = options.fetchImplementation ?? globalThis.fetch;
     if (!this.fetchImpl) {
@@ -133,6 +139,7 @@ export class UltrahumanClient {
       method: "GET",
       headers: {
         Authorization: this.apiToken,
+        "x-access-code": this.accessCode,
         "Content-Type": "application/json"
       }
     });

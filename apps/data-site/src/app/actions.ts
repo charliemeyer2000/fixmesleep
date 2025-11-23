@@ -18,7 +18,9 @@ const ultrahumanClient = (() => {
   if (!token) {
     throw new Error("ULTRAHUMAN_API_TOKEN is not configured");
   }
-  return new UltrahumanClient({ apiToken: token });
+  const accessCode = process.env.ULTRAHUMAN_ACCESS_CODE;
+  if (!accessCode) throw new Error("ULTRAHUMAN_ACCESS_CODE not configured");
+  return new UltrahumanClient({ apiToken: token, accessCode });
 })();
 
 export async function refreshMetricsAction(formData: FormData | { days?: number }) {

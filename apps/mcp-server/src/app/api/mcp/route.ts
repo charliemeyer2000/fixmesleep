@@ -244,11 +244,15 @@ let cachedClient: UltrahumanClient | null = null;
 function getUltrahumanClient() {
   if (!cachedClient) {
     const apiToken = process.env.ULTRAHUMAN_API_TOKEN;
+    const accessCode = process.env.ULTRAHUMAN_ACCESS_CODE;
     if (!apiToken) {
       throw new Error("ULTRAHUMAN_API_TOKEN is not configured");
     }
+    if (!accessCode) {
+      throw new Error("ULTRAHUMAN_ACCESS_CODE is not configured");
+    }
 
-    cachedClient = new UltrahumanClient({ apiToken });
+    cachedClient = new UltrahumanClient({ apiToken, accessCode });
   }
 
   return cachedClient;

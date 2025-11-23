@@ -18,7 +18,8 @@ async function main() {
     throw new Error("Set ULTRAHUMAN_API_TOKEN before running verification.");
   }
 
-  const client = new UltrahumanClient({ apiToken });
+  const accessCode = process.env.ULTRAHUMAN_ACCESS_CODE || "";
+  const client = new UltrahumanClient({ apiToken, accessCode });
   const dates = getRecentDates(3);
   const results: VerificationResult[] = [];
 
