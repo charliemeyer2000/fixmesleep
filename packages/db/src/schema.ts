@@ -19,12 +19,35 @@ export const dailyMetrics = pgTable(
     id: serial("id").primaryKey(),
     userEmail: text("user_email").notNull().default("self"),
     metricDate: date("metric_date").notNull(),
+    // Core sleep metrics
     totalSleepMinutes: integer("total_sleep_minutes"),
     deepSleepMinutes: integer("deep_sleep_minutes"),
     remSleepMinutes: integer("rem_sleep_minutes"),
-    readinessScore: doublePrecision("readiness_score"),
-    avgSleepHrv: doublePrecision("avg_sleep_hrv"),
+    lightSleepMinutes: integer("light_sleep_minutes"),
     sleepScore: integer("sleep_score"),
+    sleepEfficiency: doublePrecision("sleep_efficiency"),
+    restorativeSleepMinutes: integer("restorative_sleep_minutes"),
+    temperatureDeviation: doublePrecision("temperature_deviation"),
+    // Sleep details
+    bedtimeStart: integer("bedtime_start"), // Unix timestamp
+    bedtimeEnd: integer("bedtime_end"), // Unix timestamp
+    timeInBedMinutes: integer("time_in_bed_minutes"),
+    tossesAndTurns: integer("tosses_and_turns"),
+    movements: integer("movements"),
+    morningAlertnessMinutes: integer("morning_alertness_minutes"),
+    averageBodyTempCelsius: doublePrecision("average_body_temp_celsius"),
+    // Heart metrics
+    avgSleepHrv: doublePrecision("avg_sleep_hrv"),
+    nightRhr: doublePrecision("night_rhr"),
+    sleepRhr: doublePrecision("sleep_rhr"),
+    // Recovery & activity
+    readinessScore: doublePrecision("readiness_score"),
+    recoveryIndex: doublePrecision("recovery_index"),
+    movementIndex: doublePrecision("movement_index"),
+    activeMinutes: integer("active_minutes"),
+    vo2Max: doublePrecision("vo2_max"),
+    metabolicScore: doublePrecision("metabolic_score"),
+    // Full payload for any additional data
     payload: jsonb("payload").$type<Record<string, unknown>>().notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull()

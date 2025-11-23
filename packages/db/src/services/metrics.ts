@@ -43,12 +43,35 @@ export async function upsertDailyMetrics(
     return {
       userEmail: metric.email ?? "self",
       metricDate,
+      // Core sleep metrics
       totalSleepMinutes: metric.total_sleep ?? null,
       deepSleepMinutes: metric.deep_sleep ?? null,
       remSleepMinutes: metric.rem_sleep ?? null,
-      readinessScore: metric.readiness_score ?? null,
-      avgSleepHrv: metric.avg_sleep_hrv ?? null,
+      lightSleepMinutes: metric.light_sleep ?? null,
       sleepScore: metric.sleep_score ?? null,
+      sleepEfficiency: metric.sleep_efficiency ?? null,
+      restorativeSleepMinutes: metric.restorative_sleep ?? null,
+      temperatureDeviation: metric.temperature_deviation ?? null,
+      // Sleep details
+      bedtimeStart: metric.bedtime_start ?? null,
+      bedtimeEnd: metric.bedtime_end ?? null,
+      timeInBedMinutes: metric.time_in_bed ?? null,
+      tossesAndTurns: metric.tosses_and_turns ?? null,
+      movements: metric.movements ?? null,
+      morningAlertnessMinutes: metric.morning_alertness ?? null,
+      averageBodyTempCelsius: metric.average_body_temp_celsius ?? null,
+      // Heart metrics
+      avgSleepHrv: metric.avg_sleep_hrv ?? null,
+      nightRhr: metric.night_rhr ?? null,
+      sleepRhr: metric.sleep_rhr ?? null,
+      // Recovery & activity
+      readinessScore: metric.readiness_score ?? null,
+      recoveryIndex: metric.recovery_index ?? null,
+      movementIndex: metric.movement_index ?? null,
+      activeMinutes: metric.active_minutes ?? null,
+      vo2Max: metric.vo2_max ?? null,
+      metabolicScore: metric.metabolic_score ?? null,
+      // Full payload
       payload: metric as Record<string, unknown>,
       updatedAt: now
     };
@@ -60,12 +83,35 @@ export async function upsertDailyMetrics(
     .onConflictDoUpdate({
       target: [dailyMetrics.userEmail, dailyMetrics.metricDate],
       set: {
+        // Core sleep metrics
         totalSleepMinutes: sql`excluded.total_sleep_minutes`,
         deepSleepMinutes: sql`excluded.deep_sleep_minutes`,
         remSleepMinutes: sql`excluded.rem_sleep_minutes`,
-        readinessScore: sql`excluded.readiness_score`,
-        avgSleepHrv: sql`excluded.avg_sleep_hrv`,
+        lightSleepMinutes: sql`excluded.light_sleep_minutes`,
         sleepScore: sql`excluded.sleep_score`,
+        sleepEfficiency: sql`excluded.sleep_efficiency`,
+        restorativeSleepMinutes: sql`excluded.restorative_sleep_minutes`,
+        temperatureDeviation: sql`excluded.temperature_deviation`,
+        // Sleep details
+        bedtimeStart: sql`excluded.bedtime_start`,
+        bedtimeEnd: sql`excluded.bedtime_end`,
+        timeInBedMinutes: sql`excluded.time_in_bed_minutes`,
+        tossesAndTurns: sql`excluded.tosses_and_turns`,
+        movements: sql`excluded.movements`,
+        morningAlertnessMinutes: sql`excluded.morning_alertness_minutes`,
+        averageBodyTempCelsius: sql`excluded.average_body_temp_celsius`,
+        // Heart metrics
+        avgSleepHrv: sql`excluded.avg_sleep_hrv`,
+        nightRhr: sql`excluded.night_rhr`,
+        sleepRhr: sql`excluded.sleep_rhr`,
+        // Recovery & activity
+        readinessScore: sql`excluded.readiness_score`,
+        recoveryIndex: sql`excluded.recovery_index`,
+        movementIndex: sql`excluded.movement_index`,
+        activeMinutes: sql`excluded.active_minutes`,
+        vo2Max: sql`excluded.vo2_max`,
+        metabolicScore: sql`excluded.metabolic_score`,
+        // Full payload
         payload: sql`excluded.payload`,
         updatedAt: sql`excluded.updated_at`
       }
@@ -134,12 +180,34 @@ export function rowToMetric(row: DailyMetricRow): DailyMetric {
     ...payload,
     date: toDateOnly(rawDate),
     email: row.userEmail ?? undefined,
+    // Core sleep metrics
     total_sleep: row.totalSleepMinutes ?? undefined,
     deep_sleep: row.deepSleepMinutes ?? undefined,
     rem_sleep: row.remSleepMinutes ?? undefined,
-    readiness_score: row.readinessScore ?? undefined,
+    light_sleep: row.lightSleepMinutes ?? undefined,
+    sleep_score: row.sleepScore ?? undefined,
+    sleep_efficiency: row.sleepEfficiency ?? undefined,
+    restorative_sleep: row.restorativeSleepMinutes ?? undefined,
+    temperature_deviation: row.temperatureDeviation ?? undefined,
+    // Sleep details
+    bedtime_start: row.bedtimeStart ?? undefined,
+    bedtime_end: row.bedtimeEnd ?? undefined,
+    time_in_bed: row.timeInBedMinutes ?? undefined,
+    tosses_and_turns: row.tossesAndTurns ?? undefined,
+    movements: row.movements ?? undefined,
+    morning_alertness: row.morningAlertnessMinutes ?? undefined,
+    average_body_temp_celsius: row.averageBodyTempCelsius ?? undefined,
+    // Heart metrics
     avg_sleep_hrv: row.avgSleepHrv ?? undefined,
-    sleep_score: row.sleepScore ?? undefined
+    night_rhr: row.nightRhr ?? undefined,
+    sleep_rhr: row.sleepRhr ?? undefined,
+    // Recovery & activity
+    readiness_score: row.readinessScore ?? undefined,
+    recovery_index: row.recoveryIndex ?? undefined,
+    movement_index: row.movementIndex ?? undefined,
+    active_minutes: row.activeMinutes ?? undefined,
+    vo2_max: row.vo2Max ?? undefined,
+    metabolic_score: row.metabolicScore ?? undefined
   } as DailyMetric;
 }
 
