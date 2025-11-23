@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const DEFAULT_BASE_URL = "https://partner.ultrahuman.com/api/v1/partner";
+const DEFAULT_BASE_URL = "https://partner.ultrahuman.com/api/v1/partner/";
 
 // Zod schemas for the nested API response structure
 const SleepObjectSchema = z.object({
