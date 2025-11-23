@@ -27,13 +27,20 @@ export function RecentLogsCard({ logs }: { logs: ActionLogEntry[] }) {
               <p className="text-xs text-muted-foreground">
                 {new Date(log.createdAt).toLocaleString()} · {log.clientId}
               </p>
-              <p className="mt-1 text-sm line-clamp-2">
-                {String(log.requestPayload?.endpoint ?? JSON.stringify(log.requestPayload))}
-              </p>
+              <p className="mt-1 text-sm line-clamp-2">{summarizeRequest(log)}</p>
             </div>
           ))
         )}
       </CardContent>
     </Card>
   );
+}
+
+function summarizeRequest(log: ActionLogEntry) {
+  const payload = log.requestPayload ?? {};
+  if (typeof payload === "string") return payload;
+  if ("endpoint" in payload && typeof payload.endpoint === "string") {
+    return payload.endpoint;
+  }
+  return JSON.stringify(payload);
 }

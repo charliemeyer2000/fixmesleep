@@ -6,7 +6,7 @@ export function MetricsTable({ data }: { data: SleepSeriesPoint[] }) {
     return null;
   }
 
-  const rows = [...data].slice(-10).reverse();
+  const rows = data.slice(-10).reverse();
 
   return (
     <div className="rounded-lg border">
