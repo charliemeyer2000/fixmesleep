@@ -73,7 +73,7 @@ const metricSummaryShape = {
 
 const metricSummaryInput = z.object(metricSummaryShape);
 
-const handler = createMcpHandler(
+export const mcpHandler = createMcpHandler(
   server => {
 
     server.tool(
@@ -235,9 +235,9 @@ const handler = createMcpHandler(
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export const GET = handler;
-export const POST = handler;
-export const DELETE = handler;
+export const GET = mcpHandler;
+export const POST = mcpHandler;
+export const DELETE = mcpHandler;
 
 let cachedClient: UltrahumanClient | null = null;
 
