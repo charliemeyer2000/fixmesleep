@@ -21,8 +21,7 @@ const isoDateSchema = z
 const fetchMetricsShape = {
   date: isoDateSchema.optional(),
   start_epoch: z.number().int().optional(),
-  end_epoch: z.number().int().optional(),
-  email: z.string().email().optional()
+  end_epoch: z.number().int().optional()
 } as const;
 
 const fetchMetricsInput = z
@@ -52,7 +51,6 @@ type FetchMetricsInput = z.infer<typeof fetchMetricsInput>;
 const listCachedMetricsShape = {
   startDate: isoDateSchema.optional(),
   endDate: isoDateSchema.optional(),
-  email: z.string().email().optional(),
   limit: z.number().int().min(1).max(90).default(14)
 } as const;
 
@@ -67,8 +65,7 @@ const listCachedMetricsInput = z
   );
 
 const metricSummaryShape = {
-  date: isoDateSchema,
-  email: z.string().email().optional()
+  date: isoDateSchema
 } as const;
 
 const metricSummaryInput = z.object(metricSummaryShape);
@@ -347,15 +344,13 @@ function statusFromError(error: unknown) {
 function toMetricsQuery(input: FetchMetricsInput): DailyMetricsQuery {
   if (input.date) {
     return {
-      date: input.date,
-      email: input.email
+      date: input.date
     };
   }
 
   return {
     start_epoch: input.start_epoch!,
-    end_epoch: input.end_epoch!,
-    email: input.email
+    end_epoch: input.end_epoch!
   };
 }
 
