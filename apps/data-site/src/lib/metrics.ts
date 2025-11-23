@@ -36,12 +36,17 @@ export async function getDashboardData(days = DEFAULT_LOOKBACK_DAYS): Promise<Da
   }));
 
   const summary = computeSummary(series);
-  const latest = ordered[ordered.length - 1];
-
+  
+  // Find the most recent date WITH actual sleep data
+  const latestWithData = [...ordered].reverse().find(row => 
+    (row.totalSleepMinutes ?? 0) > 0 || 
+    (row.sleepScore ?? 0) > 0
+  );
+  
   return {
     series: series.slice(-days),
     summary,
-    latestSummary: latest ? buildSleepSummaryFromRow(latest) : undefined
+    latestSummary: latestWithData ? buildSleepSummaryFromRow(latestWithData) : undefined
   };
 }
 

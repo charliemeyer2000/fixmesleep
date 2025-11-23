@@ -1,4 +1,6 @@
-import { createMcpHandler } from "mcp-handler";
+import { createMcpHandler, withMcpAuth } from "mcp-handler";
+import type { AuthInfo } from "@modelcontextprotocol/sdk/server/auth/types.js";
+import { timingSafeEqual } from "crypto";
 import { z } from "zod";
 import {
   UltrahumanClient,
@@ -70,7 +72,7 @@ const metricSummaryShape = {
 
 const metricSummaryInput = z.object(metricSummaryShape);
 
-export const mcpHandler = createMcpHandler(
+const rawMcpHandler = createMcpHandler(
   server => {
 
     server.tool(
@@ -232,12 +234,48 @@ export const mcpHandler = createMcpHandler(
   }
 );
 
+export const mcpHandler = withMcpAuth(rawMcpHandler, verifyPokeToken, {
+  required: true
+});
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const GET = mcpHandler;
 export const POST = mcpHandler;
 export const DELETE = mcpHandler;
+
+async function verifyPokeToken(
+  _req: Request,
+  bearerToken?: string
+): Promise<AuthInfo | undefined> {
+  const sharedSecret = process.env.POKE_API_KEY;
+
+  if (!sharedSecret) {
+    throw new Error("POKE_API_KEY is not configured");
+  }
+
+  if (!bearerToken) {
+    return undefined;
+  }
+
+  const expected = Buffer.from(sharedSecret, "utf8");
+  const provided = Buffer.from(bearerToken, "utf8");
+
+  if (expected.length !== provided.length) {
+    return undefined;
+  }
+
+  if (!timingSafeEqual(expected, provided)) {
+    return undefined;
+  }
+
+  return {
+    token: bearerToken,
+    clientId: "poke",
+    scopes: []
+  };
+}
 
 let cachedClient: UltrahumanClient | null = null;
 
