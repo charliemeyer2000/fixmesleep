@@ -36,3 +36,11 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# Documentation with sensitive data
+VERCEL_ENV_SETUP.md
+AUTHENTICATION.md
+METRICS_REFERENCE.md
+docs/HANDOFF.md
+**/secrets.md
+**/credentials.md
