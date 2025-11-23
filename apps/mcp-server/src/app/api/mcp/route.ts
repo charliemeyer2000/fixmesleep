@@ -232,6 +232,7 @@ const baseHandler = createMcpHandler(
 );
 
 const handler = withApiKey(baseHandler);
+export { handler as mcpHandler };
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
