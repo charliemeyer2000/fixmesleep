@@ -68,8 +68,15 @@ function computeSummary(series: SleepSeriesPoint[]) {
 
   const totals = series.reduce(
     (acc, point) => {
-      acc.sleep += point.totalSleepHours;
-      acc.deep += point.deepSleepHours;
+      // Only count days with actual sleep data (non-zero hours)
+      if (point.totalSleepHours > 0) {
+        acc.sleep.sum += point.totalSleepHours;
+        acc.sleep.count += 1;
+      }
+      if (point.deepSleepHours > 0) {
+        acc.deep.sum += point.deepSleepHours;
+        acc.deep.count += 1;
+      }
       if (point.readinessScore != null) {
         acc.readiness.sum += point.readinessScore;
         acc.readiness.count += 1;
@@ -81,16 +88,18 @@ function computeSummary(series: SleepSeriesPoint[]) {
       return acc;
     },
     {
-      sleep: 0,
-      deep: 0,
+      sleep: { sum: 0, count: 0 },
+      deep: { sum: 0, count: 0 },
       readiness: { sum: 0, count: 0 },
       hrv: { sum: 0, count: 0 }
     }
   );
 
   return {
-    avgSleepHours: round(totals.sleep / series.length),
-    avgDeepSleepHours: round(totals.deep / series.length),
+    avgSleepHours:
+      totals.sleep.count > 0 ? round(totals.sleep.sum / totals.sleep.count) : 0,
+    avgDeepSleepHours:
+      totals.deep.count > 0 ? round(totals.deep.sum / totals.deep.count) : 0,
     avgReadiness:
       totals.readiness.count > 0
         ? round(totals.readiness.sum / totals.readiness.count)

@@ -12,7 +12,15 @@ const SleepObjectSchema = z.object({
   sleep_efficiency: z.object({ percentage: z.number().optional() }).optional(),
   temperature_deviation: z.object({ value: z.number().optional() }).optional(),
   restorative_sleep: z.object({ minutes: z.number().optional() }).optional(),
-  night_rhr: z.object({ avg: z.number().optional() }).optional()
+  night_rhr: z.object({ avg: z.number().optional() }).optional(),
+  bedtime_start: z.number().optional(), // Unix timestamp
+  bedtime_end: z.number().optional(), // Unix timestamp
+  time_in_bed: z.object({ minutes: z.number().optional() }).optional(),
+  toss_turn: z.object({ value: z.number().optional() }).optional(),
+  tosses_and_turns: z.object({ count: z.number().optional() }).optional(),
+  movements: z.object({ count: z.number().optional() }).optional(),
+  morning_alertness: z.object({ minutes: z.number().optional() }).optional(),
+  average_body_temperature: z.object({ celsius: z.number().optional() }).optional()
 }).passthrough();
 
 const SimpleValueSchema = z.object({
@@ -51,11 +59,22 @@ const DailyMetricSchema = z.object({
   sleep_rhr: z.number().nullable().optional(),
   restorative_sleep: z.number().nullable().optional(),
   temperature_deviation: z.number().nullable().optional(),
+  // Additional sleep fields
+  bedtime_start: z.number().nullable().optional(), // Unix timestamp
+  bedtime_end: z.number().nullable().optional(), // Unix timestamp
+  time_in_bed: z.number().nullable().optional(), // Minutes
+  tosses_and_turns: z.number().nullable().optional(), // Count
+  movements: z.number().nullable().optional(), // Count
+  morning_alertness: z.number().nullable().optional(), // Minutes
+  average_body_temp_celsius: z.number().nullable().optional(),
   // Recovery metrics
   readiness_score: z.number().nullable().optional(),
   recovery_index: z.number().nullable().optional(),
   movement_index: z.number().nullable().optional(),
-  metabolic_score: z.number().nullable().optional()
+  metabolic_score: z.number().nullable().optional(),
+  // Activity metrics
+  active_minutes: z.number().nullable().optional(),
+  vo2_max: z.number().nullable().optional()
 }).passthrough();
 
 export type DailyMetric = z.infer<typeof DailyMetricSchema>;
@@ -229,6 +248,14 @@ function parseMetricsArray(
         if (!metric.night_rhr && sleepData.night_rhr?.avg) {
           metric.night_rhr = sleepData.night_rhr.avg;
         }
+        // Additional sleep fields
+        metric.bedtime_start = sleepData.bedtime_start ?? null;
+        metric.bedtime_end = sleepData.bedtime_end ?? null;
+        metric.time_in_bed = sleepData.time_in_bed?.minutes ?? null;
+        metric.tosses_and_turns = sleepData.tosses_and_turns?.count ?? sleepData.toss_turn?.value ?? null;
+        metric.movements = sleepData.movements?.count ?? null;
+        metric.morning_alertness = sleepData.morning_alertness?.minutes ?? null;
+        metric.average_body_temp_celsius = sleepData.average_body_temperature?.celsius ?? null;
         break;
       }
       case "avg_sleep_hrv": {
@@ -256,6 +283,16 @@ function parseMetricsArray(
           const parsed = z.object({ avg: z.number().optional(), value: z.number().optional() }).passthrough().parse(obj);
           metric.night_rhr = parsed.avg ?? parsed.value ?? null;
         }
+        break;
+      }
+      case "active_minutes": {
+        const parsed = SimpleValueSchema.parse(obj);
+        metric.active_minutes = parsed.value;
+        break;
+      }
+      case "vo2_max": {
+        const parsed = SimpleValueSchema.parse(obj);
+        metric.vo2_max = parsed.value;
         break;
       }
       // Can add more metric types here as needed (glucose, metabolic_score, etc.)
