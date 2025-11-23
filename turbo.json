@@ -5,7 +5,14 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": [
+        "DATABASE_URL",
+        "ULTRAHUMAN_API_TOKEN",
+        "ULTRAHUMAN_ACCESS_CODE",
+        "ANTHROPIC_API_KEY",
+        "POKE_API_KEY"
+      ]
     },
     "lint": {
       "dependsOn": ["^lint"]
