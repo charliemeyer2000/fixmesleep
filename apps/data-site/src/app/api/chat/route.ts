@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { streamText } from "ai";
+import { streamText, convertToModelMessages } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { getDashboardData } from "@/lib/metrics";
 
@@ -24,10 +24,13 @@ Summary: ${JSON.stringify(dashboard.summary)}.
 Latest night: ${JSON.stringify(dashboard.latestSummary)}.
 Use concise, actionable answers.`;
 
+  // Convert UIMessage[] to ModelMessage[]
+  const modelMessages = convertToModelMessages(messages);
+
   const result = await streamText({
     model: anthropic(MODEL),
     system: systemMessage,
-    messages
+    messages: modelMessages
   });
 
   return result.toTextStreamResponse();
