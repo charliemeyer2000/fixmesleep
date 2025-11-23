@@ -15,7 +15,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "fixmesleep · Data",
-  description: "Ultrahuman-powered sleep analytics, logs, and chat tooling."
+  description: "Ultrahuman-powered sleep analytics, logs, and chat tooling.",
+  icons: {
+    icon: "/favicon.svg"
+  }
 };
 
 export default function RootLayout({

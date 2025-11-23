@@ -73,8 +73,9 @@ const metricSummaryShape = {
 
 const metricSummaryInput = z.object(metricSummaryShape);
 
-const baseHandler = createMcpHandler(
+const handler = createMcpHandler(
   server => {
+
     server.tool(
       "fetch_daily_metrics",
       "Fetch Ultrahuman daily metrics directly from the Partner API",
@@ -228,11 +229,8 @@ const baseHandler = createMcpHandler(
     );
   },
   undefined,
-  { basePath: "/api/mcp" }
+  { basePath: "/api" }
 );
-
-const handler = withApiKey(baseHandler);
-export { handler as mcpHandler };
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -240,29 +238,6 @@ export const dynamic = "force-dynamic";
 export const GET = handler;
 export const POST = handler;
 export const DELETE = handler;
-
-function withApiKey(routeHandler: (request: Request) => Promise<Response>) {
-  return async (request: Request) => {
-    const apiKey = process.env.POKE_API_KEY;
-    if (!apiKey) {
-      return new Response("POKE_API_KEY is not configured", { status: 500 });
-    }
-
-    const provided = request.headers.get("x-poke-api-key") ?? extractBearerToken(request.headers.get("authorization"));
-
-    if (provided !== apiKey) {
-      return new Response("Unauthorized", { status: 401 });
-    }
-
-    return routeHandler(request);
-  };
-}
-
-function extractBearerToken(header: string | null) {
-  if (!header) return undefined;
-  const matches = header.match(/^Bearer (.+)$/i);
-  return matches?.[1];
-}
 
 let cachedClient: UltrahumanClient | null = null;
 
