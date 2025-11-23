@@ -79,7 +79,7 @@ const baseHandler = createMcpHandler(
       "fetch_daily_metrics",
       "Fetch Ultrahuman daily metrics directly from the Partner API",
       fetchMetricsShape,
-      async rawInput => {
+      async (rawInput: unknown) => {
         const input = fetchMetricsInput.parse(rawInput);
         const client = getUltrahumanClient();
         const requestPayload = toLogPayload(input);
@@ -106,16 +106,14 @@ const baseHandler = createMcpHandler(
             };
           }
         });
-  },
-  undefined,
-  { basePath: "/api/mcp" }
+      }
     );
 
     server.tool(
       "refresh_and_store_metrics",
       "Fetch metrics from Ultrahuman and upsert them into Postgres",
       fetchMetricsShape,
-      async rawInput => {
+      async (rawInput: unknown) => {
         const input = fetchMetricsInput.parse(rawInput);
         const client = getUltrahumanClient();
         const requestPayload = toLogPayload(input);
@@ -146,7 +144,7 @@ const baseHandler = createMcpHandler(
       "list_cached_metrics",
       "List cached daily metrics from Postgres with optional filters",
       listCachedMetricsShape,
-      async rawInput => {
+      async (rawInput: unknown) => {
         const input = listCachedMetricsInput.parse(rawInput);
         const requestPayload = toLogPayload(input);
         return runToolWithLogging({
@@ -183,7 +181,7 @@ const baseHandler = createMcpHandler(
       "get_metric_summary",
       "Get the cached sleep summary for a specific date",
       metricSummaryShape,
-      async rawInput => {
+      async (rawInput: unknown) => {
         const input = metricSummaryInput.parse(rawInput);
         const requestPayload = toLogPayload(input);
         return runToolWithLogging({
@@ -229,8 +227,8 @@ const baseHandler = createMcpHandler(
       }
     );
   },
-  {},
-  { basePath: "/api" }
+  undefined,
+  { basePath: "/api/mcp" }
 );
 
 const handler = withApiKey(baseHandler);
