@@ -106,7 +106,9 @@ const baseHandler = createMcpHandler(
             };
           }
         });
-      }
+  },
+  undefined,
+  { basePath: "/api/mcp" }
     );
 
     server.tool(
