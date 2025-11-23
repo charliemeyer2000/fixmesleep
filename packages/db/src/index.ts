@@ -1,18 +1,18 @@
-export { createDb, withDb } from "./client";
-export type { CreateDbOptions, DbClient } from "./client";
+export { createDb, withDb } from "./client.js";
+export type { CreateDbOptions, DbClient } from "./client.js";
 export type {
   DailyMetricInsert,
   DailyMetricRecord,
   PokeActionLogInsert,
   PokeActionLogRecord,
   DailyMetricRow
-} from "./schema";
-export { dailyMetrics, pokeActionLogs } from "./schema";
+} from "./schema.js";
+export { dailyMetrics, pokeActionLogs } from "./schema.js";
 export {
   upsertDailyMetrics,
   listCachedMetrics,
   findMetricByDate,
   buildSleepSummaryFromRow,
   rowToMetric
-} from "./services/metrics";
-export { getRecentDates, formatDate } from "./utils/date";
+} from "./services/metrics.js";
+export { getRecentDates, formatDate } from "./utils/date.js";

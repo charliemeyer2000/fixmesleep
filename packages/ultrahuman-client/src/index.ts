@@ -2,7 +2,44 @@ import { z } from "zod";
 
 const DEFAULT_BASE_URL = "https://partner.ultrahuman.com/api/v1/partner";
 
-const SleepMetricsSchema = z.object({
+// Zod schemas for the nested API response structure
+const SleepObjectSchema = z.object({
+  sleep_score: z.object({ score: z.number() }).optional(),
+  total_sleep: z.object({ minutes: z.number() }).optional(),
+  deep_sleep: z.object({ minutes: z.number() }).optional(),
+  rem_sleep: z.object({ minutes: z.number() }).optional(),
+  light_sleep: z.object({ minutes: z.number() }).optional(),
+  sleep_efficiency: z.object({ percentage: z.number() }).optional(),
+  temperature_deviation: z.object({ value: z.number() }).optional(),
+  restorative_sleep: z.object({ minutes: z.number() }).optional(),
+  night_rhr: z.object({ avg: z.number() }).optional()
+}).passthrough();
+
+const SimpleValueSchema = z.object({
+  value: z.number().nullable()
+}).passthrough();
+
+const MetricItemSchema = z.object({
+  type: z.string(),
+  object: z.unknown()
+});
+
+const ApiResponseSchema = z.object({
+  data: z.object({
+    metrics: z.record(z.string(), z.array(MetricItemSchema)),
+    latest_time_zone: z.string().optional()
+  }),
+  error: z.unknown().nullable(),
+  status: z.number()
+});
+
+// Normalized daily metric schema (flat structure for easier consumption)
+const DailyMetricSchema = z.object({
+  date: z.string(),
+  email: z.string().optional(),
+  user_timezone: z.string().optional(),
+  created_at: z.string().optional(),
+  // Sleep metrics
   sleep_score: z.number().nullable().optional(),
   total_sleep: z.number().nullable().optional(),
   deep_sleep: z.number().nullable().optional(),
@@ -13,43 +50,23 @@ const SleepMetricsSchema = z.object({
   night_rhr: z.number().nullable().optional(),
   sleep_rhr: z.number().nullable().optional(),
   restorative_sleep: z.number().nullable().optional(),
-  temperature_deviation: z.number().nullable().optional()
-});
-
-const RecoveryMetricsSchema = z.object({
+  temperature_deviation: z.number().nullable().optional(),
+  // Recovery metrics
   readiness_score: z.number().nullable().optional(),
   recovery_index: z.number().nullable().optional(),
   movement_index: z.number().nullable().optional(),
   metabolic_score: z.number().nullable().optional()
-});
-
-const DailyMetricSchema = z
-  .object({
-    date: z.string(),
-    email: z.string().optional(),
-    user_timezone: z.string().optional(),
-    created_at: z.string().optional()
-  })
-  .merge(SleepMetricsSchema.partial())
-  .merge(RecoveryMetricsSchema.partial())
-  .catchall(z.unknown());
-
-const DailyMetricArraySchema = z.array(DailyMetricSchema);
-const DailyMetricsEnvelopeSchema = z.object({
-  data: DailyMetricArraySchema
-});
+}).passthrough();
 
 export type DailyMetric = z.infer<typeof DailyMetricSchema>;
 
 export type DateQuery = {
   date: string;
-  email?: string;
 };
 
 export type EpochQuery = {
   start_epoch: number;
   end_epoch: number;
-  email?: string;
 };
 
 export type DailyMetricsQuery = DateQuery | EpochQuery;
@@ -110,10 +127,6 @@ export class UltrahumanClient {
       params.append("end_epoch", query.end_epoch.toString());
     }
 
-    if (query.email) {
-      params.append("email", query.email);
-    }
-
     url.search = params.toString();
 
     const response = await this.fetchImpl(url.toString(), {
@@ -159,92 +172,91 @@ function isDateQuery(query: DailyMetricsQuery): query is DateQuery {
 }
 
 function normalizeDailyMetrics(payload: unknown): DailyMetric[] {
-  // Handle new API format: { data: { metrics: { "YYYY-MM-DD": [...] } } }
-  if (
-    payload &&
-    typeof payload === "object" &&
-    "data" in payload &&
-    typeof (payload as any).data === "object" &&
-    "metrics" in (payload as any).data
-  ) {
-    const metricsData = (payload as any).data.metrics;
-    const results: DailyMetric[] = [];
-
-    // Iterate through each date in the metrics object
-    for (const [date, metricsList] of Object.entries(metricsData)) {
-      if (!Array.isArray(metricsList)) continue;
-
-      // Parse the metrics array for this date
-      const dailyMetric = parseMetricsArray(date, metricsList);
-      results.push(dailyMetric);
-    }
-
-    return results;
+  // Parse and validate the API response structure
+  const parsed = ApiResponseSchema.parse(payload);
+  
+  if (parsed.error) {
+    throw new UltrahumanError(
+      "API returned an error",
+      parsed.status,
+      parsed.error
+    );
   }
 
-  // Fallback to old format
-  if (Array.isArray(payload)) {
-    return DailyMetricArraySchema.parse(payload);
+  const results: DailyMetric[] = [];
+  const { metrics, latest_time_zone } = parsed.data;
+
+  // Iterate through each date in the metrics object
+  for (const [date, metricsList] of Object.entries(metrics)) {
+    const dailyMetric = parseMetricsArray(date, metricsList, latest_time_zone);
+    results.push(dailyMetric);
   }
 
-  if (hasDataArray(payload)) {
-    return DailyMetricsEnvelopeSchema.parse(payload).data;
-  }
-
-  return [DailyMetricSchema.parse(payload)];
+  return results;
 }
 
-function parseMetricsArray(date: string, metricsList: any[]): DailyMetric {
+function parseMetricsArray(
+  date: string,
+  metricsList: z.infer<typeof MetricItemSchema>[],
+  timezone?: string
+): DailyMetric {
   const metric: Partial<DailyMetric> = {
     date,
+    user_timezone: timezone
   };
 
   for (const item of metricsList) {
     const { type, object: obj } = item;
 
     switch (type) {
-      case "sleep":
-        metric.sleep_score = obj.sleep_score?.score ?? null;
-        metric.total_sleep = obj.total_sleep?.minutes ?? null;
-        metric.deep_sleep = obj.deep_sleep?.minutes ?? null;
-        metric.rem_sleep = obj.rem_sleep?.minutes ?? null;
-        metric.light_sleep = obj.light_sleep?.minutes ?? null;
-        metric.sleep_efficiency = obj.sleep_efficiency?.percentage ?? null;
-        metric.temperature_deviation = obj.temperature_deviation?.value ?? null;
-        metric.restorative_sleep = obj.restorative_sleep?.minutes ?? null;
-        metric.night_rhr = obj.night_rhr?.avg ?? null;
-        break;
-      case "avg_sleep_hrv":
-        metric.avg_sleep_hrv = obj.value ?? null;
-        break;
-      case "sleep_rhr":
-        metric.sleep_rhr = obj.value ?? null;
-        break;
-      case "recovery_index":
-        metric.recovery_index = obj.value ?? null;
-        break;
-      case "movement_index":
-        metric.movement_index = obj.value ?? null;
-        break;
-      case "night_rhr":
-        if (!metric.night_rhr) {
-          metric.night_rhr = obj.avg ?? obj.value ?? null;
+      case "sleep": {
+        const sleepData = SleepObjectSchema.parse(obj);
+        metric.sleep_score = sleepData.sleep_score?.score ?? null;
+        metric.total_sleep = sleepData.total_sleep?.minutes ?? null;
+        metric.deep_sleep = sleepData.deep_sleep?.minutes ?? null;
+        metric.rem_sleep = sleepData.rem_sleep?.minutes ?? null;
+        metric.light_sleep = sleepData.light_sleep?.minutes ?? null;
+        metric.sleep_efficiency = sleepData.sleep_efficiency?.percentage ?? null;
+        metric.temperature_deviation = sleepData.temperature_deviation?.value ?? null;
+        metric.restorative_sleep = sleepData.restorative_sleep?.minutes ?? null;
+        if (!metric.night_rhr && sleepData.night_rhr?.avg) {
+          metric.night_rhr = sleepData.night_rhr.avg;
         }
         break;
+      }
+      case "avg_sleep_hrv": {
+        const parsed = SimpleValueSchema.parse(obj);
+        metric.avg_sleep_hrv = parsed.value;
+        break;
+      }
+      case "sleep_rhr": {
+        const parsed = SimpleValueSchema.parse(obj);
+        metric.sleep_rhr = parsed.value;
+        break;
+      }
+      case "recovery_index": {
+        const parsed = SimpleValueSchema.parse(obj);
+        metric.recovery_index = parsed.value;
+        break;
+      }
+      case "movement_index": {
+        const parsed = SimpleValueSchema.parse(obj);
+        metric.movement_index = parsed.value;
+        break;
+      }
+      case "night_rhr": {
+        if (!metric.night_rhr) {
+          const parsed = z.object({ avg: z.number().optional(), value: z.number().optional() }).passthrough().parse(obj);
+          metric.night_rhr = parsed.avg ?? parsed.value ?? null;
+        }
+        break;
+      }
+      // Can add more metric types here as needed (glucose, metabolic_score, etc.)
     }
   }
 
-  // Use DailyMetricSchema to validate and fill in defaults
+  // Use DailyMetricSchema to validate and return
   return DailyMetricSchema.parse(metric);
-}
-
-function hasDataArray(payload: unknown): payload is { data: unknown } {
-  return Boolean(
-    payload &&
-      typeof payload === "object" &&
-      "data" in payload &&
-      Array.isArray((payload as { data: unknown }).data)
-  );
 }
 
 export function buildSleepSummary(metric: DailyMetric): SleepSummary {
@@ -266,3 +278,5 @@ export const SleepSummarySchema = z.object({
   avgSleepHrv: z.number().optional(),
   sleepScore: z.number().optional()
 });
+
+export const DailyMetricsResponseSchema = ApiResponseSchema;
