@@ -135,6 +135,12 @@ export class UltrahumanClient {
 
     url.search = params.toString();
 
+    // Debug logging
+    console.log("[Ultrahuman] Fetching:", url.toString());
+    console.log("[Ultrahuman] Token length:", this.apiToken.length);
+    console.log("[Ultrahuman] Token preview:", this.apiToken.substring(0, 30) + "...");
+    console.log("[Ultrahuman] Access code:", this.accessCode.length ? "SET" : "EMPTY");
+
     const response = await this.fetchImpl(url.toString(), {
       method: "GET",
       headers: {
@@ -146,6 +152,10 @@ export class UltrahumanClient {
 
     if (!response.ok) {
       const rawBody = await response.text();
+      console.error("[Ultrahuman] Request failed!");
+      console.error("[Ultrahuman] Status:", response.status);
+      console.error("[Ultrahuman] Response preview:", rawBody.substring(0, 200));
+      
       let errorPayload: unknown = rawBody;
       try {
         errorPayload = JSON.parse(rawBody);
