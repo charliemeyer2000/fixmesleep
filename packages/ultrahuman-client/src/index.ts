@@ -159,6 +159,30 @@ function isDateQuery(query: DailyMetricsQuery): query is DateQuery {
 }
 
 function normalizeDailyMetrics(payload: unknown): DailyMetric[] {
+  // Handle new API format: { data: { metrics: { "YYYY-MM-DD": [...] } } }
+  if (
+    payload &&
+    typeof payload === "object" &&
+    "data" in payload &&
+    typeof (payload as any).data === "object" &&
+    "metrics" in (payload as any).data
+  ) {
+    const metricsData = (payload as any).data.metrics;
+    const results: DailyMetric[] = [];
+
+    // Iterate through each date in the metrics object
+    for (const [date, metricsList] of Object.entries(metricsData)) {
+      if (!Array.isArray(metricsList)) continue;
+
+      // Parse the metrics array for this date
+      const dailyMetric = parseMetricsArray(date, metricsList);
+      results.push(dailyMetric);
+    }
+
+    return results;
+  }
+
+  // Fallback to old format
   if (Array.isArray(payload)) {
     return DailyMetricArraySchema.parse(payload);
   }
@@ -168,6 +192,50 @@ function normalizeDailyMetrics(payload: unknown): DailyMetric[] {
   }
 
   return [DailyMetricSchema.parse(payload)];
+}
+
+function parseMetricsArray(date: string, metricsList: any[]): DailyMetric {
+  const metric: Partial<DailyMetric> = {
+    date,
+  };
+
+  for (const item of metricsList) {
+    const { type, object: obj } = item;
+
+    switch (type) {
+      case "sleep":
+        metric.sleep_score = obj.sleep_score?.score ?? null;
+        metric.total_sleep = obj.total_sleep?.minutes ?? null;
+        metric.deep_sleep = obj.deep_sleep?.minutes ?? null;
+        metric.rem_sleep = obj.rem_sleep?.minutes ?? null;
+        metric.light_sleep = obj.light_sleep?.minutes ?? null;
+        metric.sleep_efficiency = obj.sleep_efficiency?.percentage ?? null;
+        metric.temperature_deviation = obj.temperature_deviation?.value ?? null;
+        metric.restorative_sleep = obj.restorative_sleep?.minutes ?? null;
+        metric.night_rhr = obj.night_rhr?.avg ?? null;
+        break;
+      case "avg_sleep_hrv":
+        metric.avg_sleep_hrv = obj.value ?? null;
+        break;
+      case "sleep_rhr":
+        metric.sleep_rhr = obj.value ?? null;
+        break;
+      case "recovery_index":
+        metric.recovery_index = obj.value ?? null;
+        break;
+      case "movement_index":
+        metric.movement_index = obj.value ?? null;
+        break;
+      case "night_rhr":
+        if (!metric.night_rhr) {
+          metric.night_rhr = obj.avg ?? obj.value ?? null;
+        }
+        break;
+    }
+  }
+
+  // Use DailyMetricSchema to validate and fill in defaults
+  return DailyMetricSchema.parse(metric);
 }
 
 function hasDataArray(payload: unknown): payload is { data: unknown } {
