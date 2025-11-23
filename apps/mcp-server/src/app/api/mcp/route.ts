@@ -246,12 +246,6 @@ function getUltrahumanClient() {
     const apiToken = process.env.ULTRAHUMAN_API_TOKEN;
     const accessCode = process.env.ULTRAHUMAN_ACCESS_CODE;
     
-    console.log("[MCP] Creating Ultrahuman client...");
-    console.log("[MCP] Token defined:", !!apiToken);
-    console.log("[MCP] Token length:", apiToken?.length || 0);
-    console.log("[MCP] Access code defined:", !!accessCode);
-    console.log("[MCP] Access code length:", accessCode?.length || 0);
-    
     if (!apiToken) {
       throw new Error("ULTRAHUMAN_API_TOKEN is not configured");
     }
@@ -260,7 +254,6 @@ function getUltrahumanClient() {
     }
 
     cachedClient = new UltrahumanClient({ apiToken, accessCode });
-    console.log("[MCP] Client created successfully");
   }
 
   return cachedClient;

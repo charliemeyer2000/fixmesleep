@@ -4,15 +4,15 @@ const DEFAULT_BASE_URL = "https://partner.ultrahuman.com/api/v1/partner/";
 
 // Zod schemas for the nested API response structure
 const SleepObjectSchema = z.object({
-  sleep_score: z.object({ score: z.number() }).optional(),
-  total_sleep: z.object({ minutes: z.number() }).optional(),
-  deep_sleep: z.object({ minutes: z.number() }).optional(),
-  rem_sleep: z.object({ minutes: z.number() }).optional(),
-  light_sleep: z.object({ minutes: z.number() }).optional(),
-  sleep_efficiency: z.object({ percentage: z.number() }).optional(),
-  temperature_deviation: z.object({ value: z.number() }).optional(),
-  restorative_sleep: z.object({ minutes: z.number() }).optional(),
-  night_rhr: z.object({ avg: z.number() }).optional()
+  sleep_score: z.object({ score: z.number().optional() }).optional(),
+  total_sleep: z.object({ minutes: z.number().optional() }).optional(),
+  deep_sleep: z.object({ minutes: z.number().optional() }).optional(),
+  rem_sleep: z.object({ minutes: z.number().optional() }).optional(),
+  light_sleep: z.object({ minutes: z.number().optional() }).optional(),
+  sleep_efficiency: z.object({ percentage: z.number().optional() }).optional(),
+  temperature_deviation: z.object({ value: z.number().optional() }).optional(),
+  restorative_sleep: z.object({ minutes: z.number().optional() }).optional(),
+  night_rhr: z.object({ avg: z.number().optional() }).optional()
 }).passthrough();
 
 const SimpleValueSchema = z.object({
@@ -135,12 +135,6 @@ export class UltrahumanClient {
 
     url.search = params.toString();
 
-    // Debug logging
-    console.log("[Ultrahuman] Fetching:", url.toString());
-    console.log("[Ultrahuman] Token length:", this.apiToken.length);
-    console.log("[Ultrahuman] Token preview:", this.apiToken.substring(0, 30) + "...");
-    console.log("[Ultrahuman] Access code:", this.accessCode.length ? "SET" : "EMPTY");
-
     const response = await this.fetchImpl(url.toString(), {
       method: "GET",
       headers: {
@@ -152,10 +146,6 @@ export class UltrahumanClient {
 
     if (!response.ok) {
       const rawBody = await response.text();
-      console.error("[Ultrahuman] Request failed!");
-      console.error("[Ultrahuman] Status:", response.status);
-      console.error("[Ultrahuman] Response preview:", rawBody.substring(0, 200));
-      
       let errorPayload: unknown = rawBody;
       try {
         errorPayload = JSON.parse(rawBody);
@@ -281,7 +271,7 @@ export function buildSleepSummary(metric: DailyMetric): SleepSummary {
     totalSleepMinutes: metric.total_sleep ?? undefined,
     deepSleepMinutes: metric.deep_sleep ?? undefined,
     remSleepMinutes: metric.rem_sleep ?? undefined,
-    readinessScore: metric.readiness_score ?? undefined,
+    readinessScore: metric.recovery_index ?? metric.readiness_score ?? undefined,
     avgSleepHrv: metric.avg_sleep_hrv ?? undefined,
     sleepScore: metric.sleep_score ?? undefined
   };
