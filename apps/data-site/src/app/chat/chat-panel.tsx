@@ -41,7 +41,6 @@ const SUGGESTIONS = [
 
 export function ChatPanel() {
   const { messages, sendMessage, status, stop, error, clearError } = useChat({
-    api: "/api/chat",
     experimental_throttle: 250,
     onError: (error) => {
       console.error("Chat error:", error);
@@ -165,7 +164,7 @@ function renderMessageParts(message: UIMessage) {
     if (part.type.startsWith("tool-")) {
       const toolPart = part as ToolUIPart;
       const toolName = part.type.replace("tool-", "");
-      const isCompleted = toolPart.state === "completed";
+      const isCompleted = toolPart.state === "output-available";
       
       return (
         <Tool key={key} defaultOpen={isCompleted}>
@@ -181,9 +180,7 @@ function renderMessageParts(message: UIMessage) {
                     {toolName === "fetch_latest_ultrahuman" && renderLatestData(toolPart.output)}
                     {toolName === "view_action_logs" && renderActionLogs(toolPart.output)}
                     {!["query_sleep_metrics", "get_specific_date_details", "fetch_latest_ultrahuman", "view_action_logs"].includes(toolName) && (
-                      <CodeBlock language="json">
-                        {JSON.stringify(toolPart.output, null, 2)}
-                      </CodeBlock>
+                      <CodeBlock code={JSON.stringify(toolPart.output, null, 2)} language="json" />
                     )}
                   </div>
                 ) : undefined
@@ -207,7 +204,7 @@ function renderSleepMetrics(output: any) {
   return (
     <div className="space-y-3">
       <MessageResponse>
-        Found **{output.count} day{output.count !== 1 ? 's' : ''}** of sleep data:
+        {`Found **${output.count} day${output.count !== 1 ? 's' : ''}** of sleep data:`}
       </MessageResponse>
       <div className="grid gap-2">
         {output.metrics?.slice(0, 10).map((metric: any, i: number) => (
@@ -228,7 +225,7 @@ function renderSleepMetrics(output: any) {
       </div>
       {output.count > 10 && (
         <MessageResponse className="text-xs text-muted-foreground">
-          Showing first 10 of {output.count} results
+          {`Showing first 10 of ${output.count} results`}
         </MessageResponse>
       )}
     </div>
@@ -243,7 +240,7 @@ function renderDateDetails(output: any) {
   return (
     <div className="space-y-3">
       <MessageResponse>
-        Detailed metrics for **{output.date}**:
+        {`Detailed metrics for **${output.date}**:`}
       </MessageResponse>
       <Card className="p-4 space-y-3">
         {output.details?.sleep && (
@@ -291,7 +288,7 @@ function renderLatestData(output: any) {
   return (
     <div className="space-y-3">
       <MessageResponse>
-        Latest data from Ultrahuman for **{output.date}** {output.fresh && <span className="text-xs text-green-600">(fresh)</span>}:
+        {`Latest data from Ultrahuman for **${output.date}**${output.fresh ? ' (fresh)' : ''}:`}
       </MessageResponse>
       <Card className="p-4 space-y-3">
         {output.sleep && (
@@ -330,7 +327,7 @@ function renderActionLogs(output: any) {
   return (
     <div className="space-y-3">
       <MessageResponse>
-        Recent MCP action logs ({output.count} entries):
+        {`Recent MCP action logs (${output.count} entries):`}
       </MessageResponse>
       <div className="space-y-2">
         {output.logs?.map((log: any, i: number) => (
