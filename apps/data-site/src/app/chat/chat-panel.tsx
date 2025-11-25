@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import type { UIMessage, ToolUIPart } from "ai";
+import { useChatInstance } from "@/providers/chat-provider";
 import {
   Conversation,
   ConversationContent,
@@ -40,7 +41,9 @@ const SUGGESTIONS = [
 ];
 
 export function ChatPanel() {
+  const chatInstance = useChatInstance();
   const { messages, sendMessage, status, stop, error, clearError } = useChat({
+    chat: chatInstance,
     experimental_throttle: 250,
     onError: (error) => {
       console.error("Chat error:", error);
