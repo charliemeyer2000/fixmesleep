@@ -27,12 +27,14 @@ Duplicate `.env.example`, fill it locally, and sync to Vercel with `vc env pull`
 | Variable | Description |
 | --- | --- |
 | `ULTRAHUMAN_API_TOKEN` | Partner API token (see Ultrahuman docs) |
+| `ULTRAHUMAN_ACCESS_CODE` | Ultrahuman access code for API authentication |
 | `POKE_API_KEY` | Shared secret header for MCP requests |
 | `DATABASE_URL` | Neon Postgres connection string |
 | `AI_GATEWAY_API_KEY` | Vercel AI Gateway token (preferred Anthropic credential) |
-| `ANTHROPIC_API_KEY` | Direct Anthropic key fallback |
+| `ANTHROPIC_API_KEY` | Direct Anthropic key fallback (not needed if using AI Gateway) |
 | `MCP_BASE_URL` | Public MCP URL consumed by the dashboard |
-| `ANTHROPIC_MODEL` | Optional Claude model override (`claude-3-haiku-20240307` default) |
+| `ANTHROPIC_MODEL` | Optional Claude model override (default: `anthropic/claude-4-sonnet`). See [supported models](https://vercel.com/ai-gateway/models) |
+| `DASHBOARD_PASSWORD` | Password for dashboard authentication |
 
 ### Database environments
 

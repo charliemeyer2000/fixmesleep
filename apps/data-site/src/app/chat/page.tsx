@@ -7,11 +7,11 @@ export const metadata: Metadata = {
 
 export default function ChatPage() {
   return (
-    <div className="max-w-3xl space-y-4">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight">Chat with your data</h1>
+    <div className="flex flex-col flex-1 gap-4 min-h-0">
+      <div className="flex-shrink-0">
+        <h1 className="text-3xl font-semibold tracking-tight">Analyze Your Sleep Data</h1>
         <p className="text-muted-foreground">
-          Ask Anthropic Claude (via Vercel AI Gateway) anything about your logs, sleep trends, or MCP actions.
+          Query your sleep metrics, compare trends, fetch live data from your ring, or review recent activity logs.
         </p>
       </div>
       <ChatPanel />
