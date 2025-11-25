@@ -15,11 +15,11 @@ export default async function DashboardPage() {
   ]);
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-6 sm:space-y-8">
+      <div className="flex flex-col-reverse gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Your sleep command center</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">Your sleep command center</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Pull fresh Ultrahuman data, visualize trends, and keep an audit trail of MCP tool calls.
           </p>
         </div>
@@ -31,7 +31,9 @@ export default async function DashboardPage() {
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <SleepTrendChart data={dashboardData.series} />
-          <MetricsTable data={dashboardData.series} />
+          <div className="overflow-x-auto">
+            <MetricsTable data={dashboardData.series} />
+          </div>
         </div>
         <div className="space-y-4">
           <LatestMetricCard summary={dashboardData.latestSummary} />

@@ -61,14 +61,14 @@ export function ChatPanel() {
   const isStreaming = status === "streaming" || status === "submitted";
 
   return (
-    <div className="flex flex-col flex-1 gap-4 min-h-0">
+    <div className="flex flex-col flex-1 gap-3 sm:gap-4 min-h-0">
       {error && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="flex-shrink-0">
           <TriangleAlert className="size-4" />
-          <AlertTitle>Something went wrong</AlertTitle>
-          <AlertDescription className="flex items-center justify-between gap-4">
-            <span>{error.message}</span>
-            <PromptInputButton onClick={() => clearError()} size="sm" variant="secondary">
+          <AlertTitle className="text-sm">Something went wrong</AlertTitle>
+          <AlertDescription className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+            <span className="text-xs sm:text-sm">{error.message}</span>
+            <PromptInputButton onClick={() => clearError()} size="sm" variant="secondary" className="w-fit">
               Dismiss
             </PromptInputButton>
           </AlertDescription>
@@ -77,7 +77,7 @@ export function ChatPanel() {
 
       <Card className="flex flex-col overflow-hidden flex-1 min-h-0 max-h-full">
         <Conversation className="!overflow-y-auto">
-          <ConversationContent>
+          <ConversationContent className="p-3 sm:p-4 gap-4 sm:gap-8">
             {messages.length === 0 ? (
               <ConversationEmptyState
                 description="Query your sleep metrics, compare trends over time, or fetch live data from your Ultrahuman ring."
@@ -116,14 +116,19 @@ export function ChatPanel() {
         </Conversation>
       </Card>
 
-      <Suggestions className="gap-2 flex-shrink-0">
+      <Suggestions className="gap-1.5 sm:gap-2 flex-shrink-0">
         {SUGGESTIONS.map(suggestion => (
-          <Suggestion key={suggestion} onClick={value => setDraft(value)} suggestion={suggestion} />
+          <Suggestion 
+            key={suggestion} 
+            onClick={value => setDraft(value)} 
+            suggestion={suggestion}
+            className="text-xs sm:text-sm px-2.5 sm:px-4"
+          />
         ))}
       </Suggestions>
 
       <PromptInput
-        className="rounded-2xl border bg-card flex-shrink-0"
+        className="rounded-xl sm:rounded-2xl border bg-card flex-shrink-0"
         onSubmit={(message, event) => {
           event.preventDefault();
           void handleSend(message);
@@ -131,12 +136,13 @@ export function ChatPanel() {
       >
         <PromptInputBody>
           <PromptInputTextarea
-            placeholder="Ask about your sleep metrics, trends, or recent data..."
+            placeholder="Ask about your sleep metrics..."
             value={draft}
             onChange={event => setDraft(event.target.value)}
+            className="text-sm sm:text-base min-h-[44px] sm:min-h-[52px]"
           />
         </PromptInputBody>
-        <PromptInputFooter>
+        <PromptInputFooter className="p-2 sm:p-3">
           <PromptInputTools />
           <PromptInputSubmit 
             status={isStreaming ? "submitted" : undefined}

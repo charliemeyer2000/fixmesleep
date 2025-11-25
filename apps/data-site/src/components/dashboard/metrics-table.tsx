@@ -9,25 +9,25 @@ export function MetricsTable({ data }: { data: SleepSeriesPoint[] }) {
   const rows = data.slice(-10).reverse();
 
   return (
-    <div className="rounded-lg border">
+    <div className="rounded-lg border overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Date</TableHead>
-            <TableHead>Sleep</TableHead>
-            <TableHead>Deep</TableHead>
-            <TableHead>Readiness</TableHead>
-            <TableHead>HRV</TableHead>
+            <TableHead className="whitespace-nowrap">Date</TableHead>
+            <TableHead className="whitespace-nowrap">Sleep</TableHead>
+            <TableHead className="whitespace-nowrap">Deep</TableHead>
+            <TableHead className="whitespace-nowrap">Readiness</TableHead>
+            <TableHead className="whitespace-nowrap">HRV</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {rows.map(row => (
             <TableRow key={row.date}>
-              <TableCell className="font-medium">{row.date}</TableCell>
-              <TableCell>{formatHours(row.totalSleepHours)}</TableCell>
-              <TableCell>{formatHours(row.deepSleepHours)}</TableCell>
-              <TableCell>{row.readinessScore ?? "—"}</TableCell>
-              <TableCell>{row.hrv ?? "—"}</TableCell>
+              <TableCell className="font-medium whitespace-nowrap">{row.date}</TableCell>
+              <TableCell className="whitespace-nowrap">{formatHours(row.totalSleepHours)}</TableCell>
+              <TableCell className="whitespace-nowrap">{formatHours(row.deepSleepHours)}</TableCell>
+              <TableCell className="whitespace-nowrap">{row.readinessScore ?? "—"}</TableCell>
+              <TableCell className="whitespace-nowrap">{row.hrv ?? "—"}</TableCell>
             </TableRow>
           ))}
         </TableBody>
