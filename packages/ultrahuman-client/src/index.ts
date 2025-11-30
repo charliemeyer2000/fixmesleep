@@ -4,23 +4,23 @@ const DEFAULT_BASE_URL = "https://partner.ultrahuman.com/api/v1/partner/";
 
 // Zod schemas for the nested API response structure
 const SleepObjectSchema = z.object({
-  sleep_score: z.object({ score: z.number().optional() }).optional(),
-  total_sleep: z.object({ minutes: z.number().optional() }).optional(),
-  deep_sleep: z.object({ minutes: z.number().optional() }).optional(),
-  rem_sleep: z.object({ minutes: z.number().optional() }).optional(),
-  light_sleep: z.object({ minutes: z.number().optional() }).optional(),
-  sleep_efficiency: z.object({ percentage: z.number().optional() }).optional(),
-  temperature_deviation: z.object({ value: z.number().optional() }).optional(),
-  restorative_sleep: z.object({ minutes: z.number().optional() }).optional(),
-  night_rhr: z.object({ avg: z.number().optional() }).optional(),
-  bedtime_start: z.number().optional(), // Unix timestamp
-  bedtime_end: z.number().optional(), // Unix timestamp
-  time_in_bed: z.object({ minutes: z.number().optional() }).optional(),
-  toss_turn: z.object({ value: z.number().optional() }).optional(),
-  tosses_and_turns: z.object({ count: z.number().optional() }).optional(),
-  movements: z.object({ count: z.number().optional() }).optional(),
-  morning_alertness: z.object({ minutes: z.number().optional() }).optional(),
-  average_body_temperature: z.object({ celsius: z.number().optional() }).optional()
+  sleep_score: z.object({ score: z.number().nullable().optional() }).optional(),
+  total_sleep: z.object({ minutes: z.number().nullable().optional() }).optional(),
+  deep_sleep: z.object({ minutes: z.number().nullable().optional() }).optional(),
+  rem_sleep: z.object({ minutes: z.number().nullable().optional() }).optional(),
+  light_sleep: z.object({ minutes: z.number().nullable().optional() }).optional(),
+  sleep_efficiency: z.object({ percentage: z.number().nullable().optional() }).optional(),
+  temperature_deviation: z.object({ value: z.number().nullable().optional() }).optional(),
+  restorative_sleep: z.object({ minutes: z.number().nullable().optional() }).optional(),
+  night_rhr: z.object({ avg: z.number().nullable().optional() }).optional(),
+  bedtime_start: z.number().nullable().optional(), // Unix timestamp
+  bedtime_end: z.number().nullable().optional(), // Unix timestamp
+  time_in_bed: z.object({ minutes: z.number().nullable().optional() }).optional(),
+  toss_turn: z.object({ value: z.number().nullable().optional() }).optional(),
+  tosses_and_turns: z.object({ count: z.number().nullable().optional() }).optional(),
+  movements: z.object({ count: z.number().nullable().optional() }).optional(),
+  morning_alertness: z.object({ minutes: z.number().nullable().optional() }).optional(),
+  average_body_temperature: z.object({ celsius: z.number().nullable().optional() }).optional()
 }).passthrough();
 
 const SimpleValueSchema = z.object({
@@ -280,7 +280,7 @@ function parseMetricsArray(
       }
       case "night_rhr": {
         if (!metric.night_rhr) {
-          const parsed = z.object({ avg: z.number().optional(), value: z.number().optional() }).passthrough().parse(obj);
+          const parsed = z.object({ avg: z.number().nullable().optional(), value: z.number().nullable().optional() }).passthrough().parse(obj);
           metric.night_rhr = parsed.avg ?? parsed.value ?? null;
         }
         break;
